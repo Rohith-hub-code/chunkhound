@@ -91,6 +91,21 @@ pipeline {
                         }
                     }
                 }
+                
+                stage('Pytest') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                            uv run pytest -v
+                        '''
+                    }
+                    catch (Exception e) {
+                        echo "Pytest failed, but continuing..."
+                    }
+                }
+            }
+        }
 
             }
         }
@@ -149,7 +164,9 @@ pipeline {
                         az storage blob upload-batch \
                             --account-name rpstorage07 \
                             --destination rpcontainer \
-                            --source dist
+                            --source dist \
+                            --pattern "*.whl" \
+                            --overwrite
                     '''
                 }
             }

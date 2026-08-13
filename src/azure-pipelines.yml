@@ -54,11 +54,11 @@ stages:
     - script: |
         uv run black --check .
         exit /b 0
-        displayName: 'Black'
+      displayName: 'Black'
 
     - script: |
         uv run bandit -r .
         exit /b 0
-        displayName: 'Bandit'
+      displayName: 'Bandit'
 
    

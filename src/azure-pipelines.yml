@@ -3,18 +3,24 @@ trigger: none
 pool:
   name: DevopsPool
 
-steps:
+stages:
+- stage: Install_Dependencies
+  displayName: 'Install Dependencies'
+  jobs:
+  - job: Install
+    steps:
 
-# Checkout the GitHub repository
-- checkout: self
+    # Checkout the GitHub repository
+    - checkout: self
+      fetchDepth: 0
 
-# Check Python and uv
-- script: |
-    python --version
-    uv --version
-  displayName: 'Check Python and uv'
+    # Check Python and uv
+    - script: |
+        python --version
+        uv --version
+      displayName: 'Check Python and uv'
 
-# Install project dependencies
-- script: |
-    uv sync
-  displayName: 'Install dependencies'
+    # Install project dependencies
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'

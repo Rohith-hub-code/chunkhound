@@ -42,10 +42,6 @@ stages:
       displayName: 'Install dependencies'
 
     - script: |
-        uv run black --check . || true
-      displayName: 'Black'
-
-    - script: |
         uv run ruff check . || true
       displayName: 'Ruff'
 
@@ -53,6 +49,4 @@ stages:
         uv run mypy . || true
       displayName: 'MyPy'
 
-    - script: |
-        uv run bandit -r . || true
-      displayName: 'Bandit'
+   

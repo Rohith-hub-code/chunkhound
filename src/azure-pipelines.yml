@@ -4,23 +4,55 @@ pool:
   name: DevopsPool
 
 stages:
+
 - stage: Install_Dependencies
   displayName: 'Install Dependencies'
   jobs:
   - job: Install
     steps:
 
-    # Checkout the GitHub repository
     - checkout: self
       fetchDepth: 0
 
-    # Check Python and uv
     - script: |
         python --version
         uv --version
       displayName: 'Check Python and uv'
 
-    # Install project dependencies
     - script: |
         uv sync
       displayName: 'Install dependencies'
+
+
+- stage: Code_Quality_Checks
+  displayName: 'Code Quality Checks'
+  dependsOn: Install_Dependencies
+
+  jobs:
+  - job: QualityChecks
+    displayName: 'Run Quality Checks'
+
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'
+
+    - script: |
+        uv run black --check . || true
+      displayName: 'Black'
+
+    - script: |
+        uv run ruff check . || true
+      displayName: 'Ruff'
+
+    - script: |
+        uv run mypy . || true
+      displayName: 'MyPy'
+
+    - script: |
+        uv run bandit -r . || true
+      displayName: 'Bandit'

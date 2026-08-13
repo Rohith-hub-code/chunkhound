@@ -42,11 +42,23 @@ stages:
       displayName: 'Install dependencies'
 
     - script: |
-        uv run ruff check . || true
+        uv run ruff check .
+        exit /b 0
       displayName: 'Ruff'
 
     - script: |
-        uv run mypy . || true
+        uv run mypy .
+        exit /b 0
       displayName: 'MyPy'
+
+    - script: |
+        uv run black --check .
+        exit /b 0
+        displayName: 'Black'
+
+    - script: |
+        uv run bandit -r .
+        exit /b 0
+        displayName: 'Bandit'
 
    

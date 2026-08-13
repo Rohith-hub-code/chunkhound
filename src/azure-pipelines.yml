@@ -1,0 +1,20 @@
+trigger: none
+
+pool:
+  name: DevopsPool
+
+steps:
+
+# Checkout the GitHub repository
+- checkout: self
+
+# Check Python and uv
+- script: |
+    python --version
+    uv --version
+  displayName: 'Check Python and uv'
+
+# Install project dependencies
+- script: |
+    uv sync
+  displayName: 'Install dependencies'

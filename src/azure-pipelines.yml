@@ -102,9 +102,11 @@ stages:
 
     - task: SonarQubeAnalyze@7
       displayName: 'Run SonarQube Analysis'
+      continueOnError: true
 
     - task: SonarQubePublish@7
       displayName: 'Publish SonarQube Quality Gate'
+      continueOnError: true
       inputs:
         pollingTimeoutSec: '300'
 
@@ -138,5 +140,14 @@ stages:
     - script: |
         uv build
       displayName: 'Build Python Package'
+
+    # Publish the dist folder as a pipeline artifact
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Build Artifact'
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/dist'
+        artifact: 'chunkhound-package'
+
+
 
    

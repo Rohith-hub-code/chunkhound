@@ -5,10 +5,17 @@ pool:
 
 stages:
 
+# ============================================================
+# Stage 1: Install Dependencies
+# ============================================================
+
 - stage: Install_Dependencies
   displayName: 'Install Dependencies'
+
   jobs:
   - job: Install
+    displayName: 'Install Dependencies'
+
     steps:
 
     - checkout: self
@@ -23,6 +30,10 @@ stages:
         uv sync
       displayName: 'Install dependencies'
 
+
+# ============================================================
+# Stage 2: Code Quality Checks
+# ============================================================
 
 - stage: Code_Quality_Checks
   displayName: 'Code Quality Checks'
@@ -60,5 +71,72 @@ stages:
         uv run bandit -r .
         exit /b 0
       displayName: 'Bandit'
+
+
+# ============================================================
+# Stage 3: SonarQube Analysis
+# ============================================================
+
+- stage: SonarQube
+  displayName: 'SonarQube Analysis'
+  dependsOn: Code_Quality_Checks
+
+  jobs:
+  - job: SonarQubeJob
+    displayName: 'SonarQube Analysis'
+
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - task: SonarQubePrepare@7
+      displayName: 'Prepare SonarQube Analysis'
+      inputs:
+        SonarQube: 'sonarqube-server'
+        scannerMode: 'cli'
+        configMode: 'manual'
+        cliProjectKey: 'chunkhound'
+        cliProjectName: 'Chunkhound'
+        cliSources: '.'
+
+    - task: SonarQubeAnalyze@7
+      displayName: 'Run SonarQube Analysis'
+
+    - task: SonarQubePublish@7
+      displayName: 'Publish SonarQube Quality Gate'
+      inputs:
+        pollingTimeoutSec: '300'
+
+
+# ============================================================
+# Stage 4: Build
+# ============================================================
+
+- stage: Build
+  displayName: 'Build Application'
+  dependsOn: SonarQube
+
+  jobs:
+  - job: Build
+    displayName: 'Build ChunkHound'
+
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - script: |
+        python --version
+        uv --version
+      displayName: 'Check Python and uv'
+
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'
+
+    - script: |
+        uv build
+      displayName: 'Build Python Package'
 
    

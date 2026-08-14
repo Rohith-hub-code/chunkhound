@@ -106,4 +106,35 @@ stages:
     - task: SonarQubePublish@7
       displayName: 'Publish SonarQube Quality Gate'
       inputs:
-        pollingTimeoutSec: '300' 
+        pollingTimeoutSec: '300'
+
+
+# ============================================================
+# Stage 4: Build
+# ============================================================
+
+- stage: Build
+  displayName: 'Build Application'
+  dependsOn: SonarQube
+
+  jobs:
+  - job: Build
+    displayName: 'Build ChunkHound'
+
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - script: |
+        python --version
+        uv --version
+      displayName: 'Check Python and uv'
+
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'
+
+    - script: |
+        uv build
+      displayName: 'Build Python Package'

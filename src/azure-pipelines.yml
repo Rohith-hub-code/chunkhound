@@ -1,0 +1,62 @@
+trigger: none
+
+pool:
+  name: DevopsPool
+
+stages:
+
+- stage: Install_Dependencies
+  displayName: 'Install Dependencies'
+  jobs:
+  - job: Install
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - script: |
+        python --version
+        uv --version
+      displayName: 'Check Python and uv'
+
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'
+
+
+- stage: Code_Quality_Checks
+  displayName: 'Code Quality Checks'
+  dependsOn: Install_Dependencies
+
+  jobs:
+  - job: QualityChecks
+    displayName: 'Run Quality Checks'
+
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - script: |
+        uv sync
+      displayName: 'Install dependencies'
+
+    - script: |
+        uv run ruff check .
+        exit /b 0
+      displayName: 'Ruff'
+
+    - script: |
+        uv run mypy .
+        exit /b 0
+      displayName: 'MyPy'
+
+    - script: |
+        uv run black --check .
+        exit /b 0
+      displayName: 'Black'
+
+    - script: |
+        uv run bandit -r .
+        exit /b 0
+      displayName: 'Bandit'
